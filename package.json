@@ -7,8 +7,11 @@
     "preview": "vite preview --port 5050"
   },
   "dependencies": {
+    "firebase": "^9.6.10",
+    "moment": "^2.29.1",
     "vue": "^3.2.31",
-    "vue-router": "^4.0.12"
+    "vue-router": "^4.0.12",
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^2.2.2",

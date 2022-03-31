@@ -1,7 +1,12 @@
 <script setup>
-	import { ref, reactive } from "vue"
+	import { ref, reactive, onBeforeUnmount } from "vue"
+	import { useStore } from "vuex"
+	import moment from "moment"
+	import { getFirestore, doc, deleteDoc } from "firebase/firestore"
 
-	defineProps(["post"])
+	const store = useStore()
+
+	let { post } = defineProps(["post"])
 
 	let comments = reactive([
 		{ id: 1, name: "Gabi", content: "I love this photo!" },
@@ -13,12 +18,20 @@
 	let add = e => {
 		comments.push({
 			id: comments.length + 1,
-			name: "Kalle Anka",
+			name: store.state.user.displayName,
 			content: content.value
 		})
 
 		content.value = ""
 	}
+
+	let remove = e => deleteDoc(doc(getFirestore(), "posts", post.id))
+
+	let timestamp = ref(moment(post.timestamp.toDate()).fromNow())
+
+	let timer = setInterval(() => timestamp.value = moment(post.timestamp.toDate()).fromNow(), 1000 * 60)
+
+	onBeforeUnmount(() => clearInterval(timer))
 </script>
 
 <template>
@@ -27,9 +40,9 @@
 			<img :src="post.avatar" alt="Avatar" class="w-12 rounded-full mr-4">
 			<div>
 				<h3 class="font-bold">{{ post.name }}</h3>
-				<p class="text-sm text-gray-400">2 hours ago</p>
+				<p class="text-sm text-gray-400">{{ timestamp }}</p>
 			</div>
-			<button class="ml-auto text-xl">
+			<button class="ml-auto text-xl" @click="remove">
 				<i class="fas fa-ellipsis-h"></i>
 			</button>
 		</div>
@@ -61,7 +74,7 @@
 				</button>
 			</div>
 		</div>
-		<form class="p-4 border-t flex gap-4" @submit.prevent="add">
+		<form class="p-4 border-t flex gap-4" @submit.prevent="add" v-if="store.state.user">
 			<button class="text-xl" type="button">
 				<i class="far fa-smile"></i>
 			</button>
