@@ -1,7 +1,7 @@
 <script setup>
 	import Story from "./Story.vue"
 	import Post from "./Post.vue"
-	import { ref } from "vue"
+	import { ref, onBeforeUnmount } from "vue"
 	import { getFirestore, collection, onSnapshot, query, orderBy } from "firebase/firestore"
 
 	let stories = ref([
@@ -14,9 +14,11 @@
 
 	const q = query(collection(getFirestore(), "posts"), orderBy("timestamp", "desc"))
 
-	onSnapshot(q, snapshot => {
+	let unsubscribe = onSnapshot(q, snapshot => {
 		posts.value = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
 	})
+
+	onBeforeUnmount(() => unsubscribe())
 </script>
 
 <template>
