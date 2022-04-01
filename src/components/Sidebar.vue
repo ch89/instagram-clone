@@ -12,7 +12,7 @@
 </script>
 
 <template>
-	<div>
+	<div class="p-4 md:p-0">
 		<div class="flex items-center mb-4" v-if="store.state.user">
 			<img :src="store.state.user.photoURL" alt="Avatar" class="w-16 rounded-full border border-gray-300 p-0.5 mr-4">
 			<div>

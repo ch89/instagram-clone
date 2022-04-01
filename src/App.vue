@@ -11,7 +11,7 @@
 <template>
 	<template v-if="store.state.user">
 		<navbar></navbar>
-		<main class="max-w-screen-lg mx-auto p-4 grid grid-cols-[2fr_1fr] gap-4">
+		<main class="max-w-screen-lg mx-auto md:p-4 grid md:grid-cols-[2fr_1fr] gap-4">
 			<feed></feed>
 			<sidebar></sidebar>
 		</main>

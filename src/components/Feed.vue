@@ -23,7 +23,7 @@
 
 <template>
 	<div class="grid gap-4">
-		<div class="bg-white p-4 border border-gray-300 rounded-md flex gap-4">
+		<div class="bg-white p-4 border-y md:border-x border-gray-300 md:rounded-md flex gap-4">
 			<story v-for="story in stories" :key="story.id" :story="story"></story>
 		</div>
 		<post v-for="post in posts" :key="post.id" :post="post"></post>

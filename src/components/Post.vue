@@ -82,7 +82,7 @@
 </script>
 
 <template>
-	<div class="bg-white border border-gray-300 rounded-md">
+	<div class="bg-white border-y md:border-x border-gray-300 md:rounded-md">
 		<div class="p-4 flex items-center">
 			<img :src="post.avatar" alt="Avatar" class="w-12 rounded-full mr-4">
 			<div>
