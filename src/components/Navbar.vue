@@ -2,16 +2,9 @@
 	import Modal from "./Modal.vue"
 	import { ref } from "vue"
 	import { useStore } from "vuex"
-	import {
-		getAuth, 
-		signInWithPopup, 
-		GoogleAuthProvider, 
-		signOut
-	} from "firebase/auth"
+	import { getAuth, signOut } from "firebase/auth"
 
 	let store = useStore(),
-		auth = getAuth(),
-		provider = new GoogleAuthProvider(),
 		show = ref(false)
 </script>
 
@@ -36,8 +29,7 @@
 				<a href="#" class="text-2xl hover:scale-125 transition">
 					<i class="far fa-heart"></i>
 				</a>
-				<img :src="store.state.user.photoURL" alt="Avatar" class="w-8 rounded-full" v-if="store.state.user" @click="signOut(auth)">
-				<a href="#" v-else @click="signInWithPopup(auth, provider)">Login</a>
+				<img :src="store.state.user.photoURL" alt="Avatar" class="w-8 rounded-full cursor-pointer" @click="signOut(getAuth())">
 			</div>
 		</div>
 	</nav>
