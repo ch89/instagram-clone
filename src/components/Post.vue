@@ -2,6 +2,7 @@
 	import { ref, reactive, onBeforeUnmount } from "vue"
 	import { useStore } from "vuex"
 	import moment from "moment"
+	import { getAuth } from "firebase/auth"
 	import {
 		getFirestore, 
 		doc, 
@@ -24,7 +25,9 @@
 		content = ref(""),
 		loading = ref(false),
 		liked = ref(false),
-		db = getFirestore()
+		likes = ref([]),
+		db = getFirestore(),
+		user = getAuth().currentUser
 
 	let unsubscribe = onSnapshot(
 		query(
@@ -54,20 +57,27 @@
 
 	let remove = e => deleteDoc(doc(getFirestore(), "posts", post.id))
 
-	getDoc(doc(db, `posts/${post.id}/likes/${store.state.user.uid}`))
-		.then(doc => liked.value = doc.exists())
+	const docRef = doc(db, `posts/${post.id}/likes/${user.uid}`)
 
-	const docRef = doc(getFirestore(), `posts/${post.id}/likes/${store.state.user.uid}`)
+	// Version 1
+	// onSnapshot(docRef, snapshot => liked.value = snapshot.exists())
+	// let like = e => liked.value ? deleteDoc(docRef) : setDoc(docRef, { uid: user.uid })
+
+	// Version 2
+	onSnapshot(
+		collection(db, `posts/${post.id}/likes`),
+		snapshot => likes.value = snapshot.docs.map(doc => doc.id)
+	)
 
 	let like = e => {
-		if(liked.value) {
-			deleteDoc(docRef).then(() => liked.value = false)
+		if(likes.value.includes(user.uid)) {
+			deleteDoc(docRef)
 		}
 		else {
 			setDoc(docRef, {
-				name: store.state.user.displayName,
-				avatar: store.state.user.photoURL
-			}).then(() => liked.value = true)
+				name: user.displayName,
+				avatar: user.photoURL
+			})
 		}
 	}
 
@@ -93,11 +103,15 @@
 				<i class="fas fa-ellipsis-h"></i>
 			</button>
 		</div>
-		<img :src="post.photo" alt="Photo">
+		<img :src="post.photo" alt="Photo" class="w-full">
 		<div class="p-4 grid gap-2">
 			<div class="flex gap-4 text-xl">
 				<button @click="like">
-					<i class="fa-heart" :class="liked ? 'fas text-red-400' : 'far'"></i>
+					<!-- Version 1 -->
+					<!-- <i class="fa-heart" :class="liked ? 'fas text-red-400' : 'far'"></i> -->
+
+					<!-- Version 2 -->
+					<i class="fa-heart" :class="likes.includes(user.uid) ? 'fas text-red-400' : 'far'"></i>
 				</button>
 				<button>
 					<i class="far fa-comment"></i>
@@ -109,6 +123,8 @@
 					<i class="far fa-bookmark"></i>
 				</button>
 			</div>
+			<!-- Version 2 -->
+			<p v-if="likes.length" class="font-semibold">{{ likes.length }} likes</p>
 			<div class="flex gap-2">
 				<h3 class="font-semibold">{{ post.name }}</h3>
 				<p>{{ post.caption }}</p>
