@@ -9,7 +9,7 @@ const emit = defineEmits(["close"])
 const form = ref({})
 const loading = ref(false)
 const photo = ref(null)
-const { displayName, photoURL } = getAuth().currentUser
+const { displayName, photoURL, uid } = getAuth().currentUser
 
 let add = async e => {
     loading.value = true
@@ -22,6 +22,7 @@ let add = async e => {
     await setDoc(docRef, {
         displayName,
         photoURL,
+        uid,
         ...form.value,
         photo: await getDownloadURL(photoRef),
         likes: [],

@@ -3,7 +3,7 @@ import { getAuth } from "@firebase/auth";
 import { addDoc, arrayRemove, arrayUnion, collection, deleteDoc, doc, getFirestore, onSnapshot, orderBy, query, serverTimestamp, updateDoc } from "@firebase/firestore";
 import { deleteObject, getStorage, ref as storageRef } from "@firebase/storage";
 import moment from "moment"
-import { ref } from "vue";
+import { onBeforeUnmount, ref } from "vue";
 
 const props = defineProps(["post"])
 const { uid, displayName, photoURL } = getAuth().currentUser
@@ -36,7 +36,7 @@ let remove = e => {
     deleteDoc(doc(getFirestore(), `posts/${props.post.id}`))
 }
 
-onSnapshot(
+const unsubscribe = onSnapshot(
     query(
         collection(getFirestore(), `posts/${props.post.id}/comments`),
         orderBy("timestamp")
@@ -46,6 +46,8 @@ onSnapshot(
         ...doc.data()
     }))
 )
+
+onBeforeUnmount(unsubscribe)
 </script>
 
 <template>

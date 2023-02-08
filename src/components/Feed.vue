@@ -1,8 +1,10 @@
 <script setup>
 import Story from "./Story.vue"
 import Post from "./Post.vue"
-import { ref } from "vue"
-import { collection, getFirestore, onSnapshot, orderBy, query } from "@firebase/firestore";
+import { onBeforeUnmount, ref } from "vue"
+import { collection, getFirestore, onSnapshot, orderBy, query, where } from "@firebase/firestore";
+import { getAuth } from "@firebase/auth";
+import store from '../store';
 
 const stories = ref([
     { id: 1, photo: "/images/avatar1.jpg" },
@@ -10,16 +12,30 @@ const stories = ref([
     { id: 1, photo: "/images/avatar3.jpg" },
 ])
 const posts = ref([])
+const { uid } = getAuth().currentUser
+let unsubscribe
 
 onSnapshot(
-    query(
-        collection(getFirestore(), "posts"),
-        orderBy("timestamp", "desc")
-    ),
-    snapshot => posts.value = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-    }))
+    collection(getFirestore(), `users/${uid}/follows`),
+    snapshot => {
+        const uids = snapshot.docs.map(doc => doc.id)
+
+        store.commit("follows", uids)
+        
+        if(unsubscribe) unsubscribe()
+        
+        unsubscribe = onSnapshot(
+            query(
+                collection(getFirestore(), "posts"),
+                where("uid", "in", [uid, ...uids]),
+                orderBy("timestamp", "desc")
+            ),
+            snapshot => posts.value = snapshot.docs.map(doc => ({
+                id: doc.id,
+                ...doc.data()
+            }))
+        )
+    }
 )
 </script>
 
